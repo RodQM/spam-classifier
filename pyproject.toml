@@ -1,0 +1,98 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "spamclf"
+version = "0.1.0"
+description = "SMS spam classifier: a from-scratch Naive Bayes benchmarked against scikit-learn models."
+readme = "README.md"
+requires-python = ">=3.11"
+keywords = ["machine-learning", "nlp", "spam", "scikit-learn", "naive-bayes"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
+]
+dependencies = [
+    "scikit-learn>=1.6",
+    "numpy>=1.26",
+    "scipy>=1.11",
+    "pandas>=2.1",
+    "matplotlib>=3.8",
+    "joblib>=1.3",
+    "typer>=0.12",
+    "rich>=13",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-cov>=5",
+    "ruff>=0.6",
+    "mypy>=1.11",
+    "pandas-stubs",
+    "pre-commit",
+]
+notebook = [
+    "jupyterlab>=4",
+    "nbconvert>=7",
+    "ipykernel>=6",
+]
+
+[project.scripts]
+spamclf = "spamclf.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/spamclf"]
+
+# --- Tooling -----------------------------------------------------------------
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers --strict-config"
+filterwarnings = ["error::UserWarning:spamclf.*"]
+
+[tool.coverage.run]
+source = ["spamclf"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+extend-exclude = ["notebooks"]  # exploratory code; cell order beats import order
+
+[tool.ruff.lint]
+select = [
+    "E", "W",  # pycodestyle
+    "F",       # pyflakes
+    "I",       # isort
+    "N",       # pep8-naming
+    "UP",      # pyupgrade
+    "B",       # bugbear
+    "C4",      # comprehensions
+    "SIM",     # simplify
+    "PTH",     # pathlib over os.path
+    "RUF",     # ruff-specific
+]
+# X / X_train are the universal scikit-learn names for feature matrices.
+ignore = ["N803", "N806"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unreachable = true
+# scikit-learn ships no type information, so its base classes are `Any`.
+disallow_subclassing_any = false
+
+[[tool.mypy.overrides]]
+module = ["sklearn.*", "scipy.*", "joblib.*"]
+ignore_missing_imports = true

@@ -1,0 +1,4 @@
+# Store text with LF endings on every platform so diffs and formatters agree.
+* text=auto eol=lf
+*.png binary
+*.joblib binary
